@@ -18,8 +18,35 @@ repositories {
 }
 
 dependencies {
+    // 🪧 MongoDB
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // 🪧 Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // 🪧 JWT
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.12.6'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.12.6'
+
+    // 🪧 JSON
+    implementation 'org.json:json:20230227'
+
+    // 🪧 Validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // 🪧 Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // 🪧 Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // 🪧 Lombok
+    implementation 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // 🪧 Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
