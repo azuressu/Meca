@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>폴더 관리 앱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-name {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-bar {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            color: #f0f0f0;
+            border-radius: 5px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .btn-logout {
+            background-color: #f44336;
+        }
+
+        .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+            display: none;
+        }
+
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-login {
+            background-color: #2196F3;
+        }
+
+        .btn-login:hover {
+            background-color: #0b7dda;
+        }
+
+        .btn-logout {
+            background-color: #f44336;
+        }
+
+        .btn-logout:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-cancel {
+            background-color: #666;
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .folder {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            border: 1px solid #444;
+        }
+
+        .folder:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .folder-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            fill: #4CAF50;
+        }
+
+        .folder-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .folder-count {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .folder-checkbox {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .add-folder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #444;
+            background-color: transparent;
+        }
+
+        .add-folder:hover {
+            border-color: #4CAF50;
+        }
+
+        .add-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+            fill: #aaa;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #444;
+        }
+
+        .modal-title {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: #f0f0f0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .login-prompt {
+            text-align: center;
+            margin: 100px auto;
+            max-width: 500px;
+            padding: 30px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .login-prompt h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        .login-prompt p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            color: #f44336;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        /* 모바일 대응 스타일 */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .control-panel {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            .folder-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .folder {
+                padding: 15px;
+            }
+
+            .folder-icon {
+                width: 40px;
+                height: 40px;
+            }
+
+            .folder-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="user-info" id="userInfo">
+        <span th:if="${username != null}" class="user-name" th:text="${username} + '님 환영합니다.'">사용자명</span>
+        <span th:if="${username == null}">로그인 해주세요</span>
+    </div>
+    <div>
+        <button id="showLoginBtn" class="btn btn-login">로그인</button>
+        <button id="showSignupBtn" class="btn">회원가입</button>
+        <button id="logoutBtn" class="btn btn-logout" style="display:none;">로그아웃</button>
+    </div>
+</header>
+
+<main>
+    <!-- HTML 수정 -->
+    <section id="folderSection" class="folder-grid" style="display: none;">
+        <h2>내 폴더</h2>
+        <div id="folderList">
+            <ul id="foldersUl">
+                <!-- 폴더 목록은 JavaScript에서 동적으로 로드됨 -->
+            </ul>
+        </div>
+        <button id="showAddFolderBtn" class="btn" style="margin-top:1em;">폴더 추가</button>
+    </section>
+</main>
+
+<!-- 로그인 전 화면 -->
+<div class="login-prompt" id="loginPrompt">
+    <h2>로그인이 필요합니다</h2>
+    <p>암기 노트를 이용하려면 로그인이 필요합니다. 오른쪽 상단의 로그인 버튼을 클릭하여 로그인해주세요.</p>
+    <button class="btn btn-login" id="loginButtonPrompt">로그인하기</button>
+</div>
+
+<!-- 로그인 모달 -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <h3 class="modal-title">로그인</h3>
+        <div class="form-group">
+            <label for="loginUsername">닉네임</label>
+            <input type="text" id="loginUsername" class="form-input" placeholder="닉네임을 입력하세요"/>
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">비밀번호</label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="비밀번호를 입력하세요"/>
+        </div>
+        <div class="error-message" id="loginError"></div>
+        <div class="modal-actions">
+            <button type="button" id="loginCancelBtn" class="btn btn-cancel">취소</button>
+            <button type="button" id="loginSubmitBtn" class="btn">로그인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 회원가입 모달 -->
+<div class="modal" id="signupModal">
+    <div class="modal-content">
+        <h3 class="modal-title">회원가입</h3>
+        <div class="form-group">
+            <label for="signUpUsername">사용자명</label>
+            <input type="text" id="signUpUsername" class="form-input" placeholder="사용자명을 입력하세요"/>
+        </div>
+        <div class="form-group">
+            <label for="signUpNickname">닉네임</label>
+            <input type="text" id="signUpNickname" class="form-input" placeholder="닉네임을 입력하세요"/>
+        </div>
+        <div class="form-group">
+            <label for="signupPassword">비밀번호</label>
+            <input type="password" id="signupPassword" class="form-input" placeholder="비밀번호를 입력하세요"/>
+        </div>
+        <div class="error-message" id="signupError"></div>
+        <div class="modal-actions">
+            <button type="button" id="signupCancelBtn" class="btn btn-cancel">취소</button>
+            <button type="button" id="signupSubmitBtn" class="btn">회원가입</button>
+        </div>
+    </div>
+</div>
+
+<!-- 폴더 추가 모달 -->
+<div class="modal" id="addFolderModal">
+    <div class="modal-content">
+        <h3 class="modal-title">폴더 추가</h3>
+        <div class="form-group">
+            <label for="folderNameInput">폴더명</label>
+            <input type="text" id="folderNameInput" class="form-input" placeholder="폴더 이름을 입력하세요"/>
+        </div>
+        <div class="error-message" id="folderError"></div>
+        <div class="modal-actions">
+            <button type="button" id="addFolderCancelBtn" class="btn btn-cancel">취소</button>
+            <button type="button" id="addFolderSubmitBtn" class="btn">추가</button>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+    // 사용자 데이터 (실제로는 서버에서 관리해야 함)
+    const users = [
+        {
+            username: "user1", password: "password1", folders: [
+                {id: 1, name: "영어 단어", cardCount: 25},
+                {id: 2, name: "한국사", cardCount: 42}
+            ]
+        },
+        {
+            username: "user2", password: "password2", folders: [
+                {id: 1, name: "수학 공식", cardCount: 15},
+                {id: 2, name: "과학 용어", cardCount: 30},
+                {id: 3, name: "프로그래밍", cardCount: 22}
+            ]
+        }
+    ];
+
+    // 현재 로그인된 사용자
+    let currentUser = null;
+
+    // 로컬 스토리지에서 로그인 상태 확인
+    function checkLoginStatus() {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateUIForLoggedInUser();
+        }
+    }
+
+    // 로그인 시 UI 업데이트 수정 (로그아웃 버튼 표시 포함)
+    function updateUIForLoggedInUser() {
+        // 사용자 정보 표시
+        const userInfoElement = document.querySelector('#userInfo span');
+        if (userInfoElement) {
+            userInfoElement.textContent = currentUser.username + '님 환영합니다.';
+        }
+
+        // 버튼 표시/숨김 처리
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const showSignupBtn = document.getElementById('showSignupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const folderSection = document.getElementById('folderSection');
+
+        if (showLoginBtn) showLoginBtn.style.display = 'none';
+        if (showSignupBtn) showSignupBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'inline-block'; // 로그아웃 버튼 표시
+
+        // 로그인 프롬프트 숨기기
+        if (loginPrompt) loginPrompt.style.display = 'none';
+
+        // 폴더 섹션 표시
+        if (folderSection) {
+            folderSection.style.display = 'block';
+        } else {
+            console.error("folderSection 요소를 찾을 수 없습니다");
+        }
+
+        // 사용자의 폴더 로드
+        loadUserFolders();
+    }
+
+    // 로그아웃 시 UI 업데이트
+    function updateUIForLoggedOutUser() {
+        document.querySelector('#userInfo span').textContent = '로그인 해주세요';
+
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const showSignupBtn = document.getElementById('showSignupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const folderSection = document.getElementById('folderSection');
+
+        if (showLoginBtn) showLoginBtn.style.display = 'inline-block';
+        if (showSignupBtn) showSignupBtn.style.display = 'inline-block';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+
+        if (loginPrompt) loginPrompt.style.display = 'block';
+        if (folderSection) folderSection.style.display = 'none';
+    }
+
+    // 로그아웃 처리
+    function handleLogout() {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        updateUIForLoggedOutUser();
+    }
+
+    // 폴더 로드 함수 수정
+    function loadUserFolders() {
+        const folderList = document.getElementById('foldersUl');
+        if (!folderList) {
+            console.error("foldersUl 요소를 찾을 수 없습니다");
+            return;
+        }
+
+        folderList.innerHTML = '';
+
+        // 현재 사용자의 폴더 추가
+        if (currentUser) {
+            const userObj = users.find(u => u.username === currentUser.username);
+            if (userObj && userObj.folders) {
+                userObj.folders.forEach(folder => {
+                    const folderElement = document.createElement('li');
+                    folderElement.className = 'folder';
+                    folderElement.setAttribute('data-id', folder.id);
+
+                    folderElement.innerHTML = `
+                    <input type="checkbox" class="folder-checkbox">
+                    <svg class="folder-icon" viewBox="0 0 24 24">
+                        <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                    </svg>
+                    <div class="folder-title">${folder.name}</div>
+                    <div class="folder-count">${folder.cardCount} 카드</div>
+                `;
+
+                    folderElement.addEventListener('click', function () {
+                        const folderId = this.getAttribute('data-id');
+                        window.location.href = '/cards/' + folderId;
+                    });
+
+                    folderList.appendChild(folderElement);
+                });
+            }
+        }
+    }
+
+    // 로그인 모달 표시
+    function showLoginModal() {
+        document.getElementById('loginModal').style.display = 'flex';
+        document.getElementById('loginUsername').focus();
+    }
+
+    // 로그인 모달 닫기
+    function closeLoginModal() {
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').style.display = 'none';
+    }
+
+    // 회원가입 모달 표시
+    function showSignupModal() {
+        document.getElementById('signupModal').style.display = 'flex';
+        document.getElementById('signUpUsername').focus();
+    }
+
+    // 회원가입 모달 닫기
+    function closeSignupModal() {
+        document.getElementById('signupModal').style.display = 'none';
+        document.getElementById('signUpUsername').value = '';
+        document.getElementById('signUpNickname').value = '';
+        document.getElementById('signupPassword').value = '';
+        document.getElementById('signupError').style.display = 'none';
+    }
+
+    // 폴더 추가 모달 열기
+    function showAddFolderModal() {
+        document.getElementById('addFolderModal').style.display = 'flex';
+        document.getElementById('folderNameInput').focus();
+    }
+
+    // 폴더 추가 모달 닫기
+    function closeAddFolderModal() {
+        document.getElementById('addFolderModal').style.display = 'none';
+        document.getElementById('folderNameInput').value = '';
+        document.getElementById('folderError').style.display = 'none';
+    }
+
+    // 로그인 처리
+    function handleLogin(event) {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const error = document.getElementById('loginError');
+        error.style.display = 'none';
+
+        if (!username || !password) {
+            error.textContent = '닉네임과 비밀번호를 입력해주세요.';
+            error.style.display = 'block';
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/auth/sign-in'); // 실제 로그인 API 엔드포인트로 변경
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // 로그인 성공 시, 서버에서 JWT 토큰은 쿠키에 담겨서 설정됨
+                // 응답 본문을 더 이상 확인할 필요 없음
+                currentUser = { username: username }; // 서버에서 username을 반환하지 않으므로 입력한 username 사용
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                closeLoginModal();
+                updateUIForLoggedInUser();
+            } else {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    error.textContent = response.message || '로그인 실패';
+                } catch (e) {
+                    error.textContent = '로그인 실패';
+                    console.error("로그인 에러 응답 파싱 실패:", e);
+                }
+                error.style.display = 'block';
+            }
+        };
+        xhr.onerror = function() {
+            error.textContent = '서버 연결에 실패했습니다.';
+            error.style.display = 'block';
+        };
+        xhr.send(JSON.stringify({ username: username, password: password }));
+    }
+
+    // 회원가입 처리
+    function handleSignup(event) {
+        const username = document.getElementById('signUpUsername').value.trim();
+        const nickname = document.getElementById('signUpNickname').value.trim();
+        const password = document.getElementById('signupPassword').value.trim();
+        const error = document.getElementById('signupError');
+        error.style.display = 'none';
+
+        if (!username || !password || !nickname) {
+            error.textContent = '모든 항목을 입력해주세요.';
+            error.style.display = 'block';
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/auth/sign-up'); // 실제 회원가입 API 엔드포인트로 변경
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        alert('회원가입 성공! 로그인해주세요.');
+                        closeSignupModal();
+                        showLoginModal();
+                    } else {
+                        error.textContent = response.data || '회원가입 실패'; // data 필드에 실패 메시지 있을 수도 있음
+                        error.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error("JSON 파싱 에러:", e);
+                    error.textContent = '서버 응답 형식 오류';
+                    error.style.display = 'block';
+                }
+            } else {
+                error.textContent = '서버와 통신 중 오류가 발생했습니다. 상태 코드: ' + xhr.status;
+                error.style.display = 'block';
+            }
+        };
+        xhr.onerror = function() {
+            error.textContent = '서버 연결에 실패했습니다.';
+            error.style.display = 'block';
+        };
+        xhr.send(JSON.stringify({ username: username, nickname: nickname, password: password }));
+    }
+
+    // 이벤트 리스너 등록 (안전하게 수정)
+    document.addEventListener('DOMContentLoaded', function () {
+        // 로그인 상태 확인
+        checkLoginStatus();
+
+        // 모달 닫기 이벤트 처리 함수들
+        const loginCancelBtn = document.getElementById('loginCancelBtn');
+        if (loginCancelBtn) {
+            loginCancelBtn.onclick = function () {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginError').style.display = 'none';
+            };
+        }
+
+        const signupCancelBtn = document.getElementById('signupCancelBtn');
+        if (signupCancelBtn) {
+            signupCancelBtn.onclick = function () {
+                document.getElementById('signupModal').style.display = 'none';
+                document.getElementById('signUpUsername').value = '';
+                document.getElementById('signUpNickname').value = '';
+                document.getElementById('signupPassword').value = '';
+                document.getElementById('signupError').style.display = 'none';
+            };
+        }
+
+        const addFolderCancelBtn = document.getElementById('addFolderCancelBtn');
+        if (addFolderCancelBtn) {
+            addFolderCancelBtn.onclick = function () {
+                document.getElementById('addFolderModal').style.display = 'none';
+                document.getElementById('folderNameInput').value = '';
+                document.getElementById('folderError').style.display = 'none';
+            };
+        }
+
+        // 로그인/회원가입 버튼 이벤트
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        if (showLoginBtn) {
+            showLoginBtn.addEventListener('click', showLoginModal);
+        }
+
+        const loginButtonPrompt = document.getElementById('loginButtonPrompt');
+        if (loginButtonPrompt) {
+            loginButtonPrompt.addEventListener('click', showLoginModal);
+        }
+
+        const showSignupBtn = document.getElementById('showSignupBtn');
+        if (showSignupBtn) {
+            showSignupBtn.addEventListener('click', showSignupModal);
+        }
+
+        // 로그아웃 버튼 이벤트 (null 체크 추가)
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        } else {
+            console.error("로그아웃 버튼을 찾을 수 없습니다");
+        }
+
+        // 로그인/회원가입 제출 버튼 이벤트
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        if (loginSubmitBtn) {
+            loginSubmitBtn.addEventListener('click', handleLogin);
+        }
+
+        const signupSubmitBtn = document.getElementById('signupSubmitBtn');
+        if (signupSubmitBtn) {
+            signupSubmitBtn.addEventListener('click', handleSignup);
+        }
+
+        // 폴더 관련 버튼 이벤트
+        const showAddFolderBtn = document.getElementById('showAddFolderBtn');
+        if (showAddFolderBtn) {
+            showAddFolderBtn.addEventListener('click', function () {
+                if (currentUser) {
+                    showAddFolderModal();
+                } else {
+                    showLoginModal();
+                }
+            });
+        }
+
+        const addFolderSubmitBtn = document.getElementById('addFolderSubmitBtn');
+        if (addFolderSubmitBtn) {
+            addFolderSubmitBtn.addEventListener('click', function () {
+                const folderName = document.getElementById('folderNameInput').value.trim();
+                const error = document.getElementById('folderError');
+
+                if (!folderName) {
+                    error.textContent = '폴더명을 입력해주세요.';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                if (currentUser) {
+                    const userObj = users.find(u => u.username === currentUser.username);
+                    if (userObj) {
+                        const newFolderId = userObj.folders.length > 0
+                            ? Math.max(...userObj.folders.map(f => f.id)) + 1
+                            : 1;
+
+                        userObj.folders.push({
+                            id: newFolderId,
+                            name: folderName,
+                            cardCount: 0
+                        });
+
+                        loadUserFolders();
+                        document.getElementById('addFolderModal').style.display = 'none';
+                        document.getElementById('folderNameInput').value = '';
+                    }
+                } else {
+                    showLoginModal();
+                }
+            });
+        }
+    });
+
+</script>
+</html>
