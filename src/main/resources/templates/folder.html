@@ -162,6 +162,48 @@
             height: 20px;
         }
 
+        /* 폴더 리스트 스타일 수정 */
+        #foldersUl {
+            list-style-type: none; /* 리스트 앞의 점(bullet) 제거 */
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 반응형 그리드 */
+            gap: 20px;
+        }
+
+        #foldersUl li.folder {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #foldersUl li.folder:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #foldersUl .folder-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            fill: #4CAF50;
+        }
+
+        #foldersUl .folder-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
         .add-folder {
             display: flex;
             flex-direction: column;
@@ -345,8 +387,8 @@
     <div class="modal-content">
         <h3 class="modal-title">로그인</h3>
         <div class="form-group">
-            <label for="loginUsername">닉네임</label>
-            <input type="text" id="loginUsername" class="form-input" placeholder="닉네임을 입력하세요"/>
+            <label for="loginUsername">사용자명</label>
+            <input type="text" id="loginUsername" class="form-input" placeholder="사용자명을 입력하세요"/>
         </div>
         <div class="form-group">
             <label for="loginPassword">비밀번호</label>
@@ -449,7 +491,7 @@
 
         if (showLoginBtn) showLoginBtn.style.display = 'none';
         if (showSignupBtn) showSignupBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'inline-block'; // 로그아웃 버튼 표시
+        if (logoutBtn) logoutBtn.style.display = 'inline-block';
 
         // 로그인 프롬프트 숨기기
         if (loginPrompt) loginPrompt.style.display = 'none';
@@ -457,8 +499,6 @@
         // 폴더 섹션 표시
         if (folderSection) {
             folderSection.style.display = 'block';
-        } else {
-            console.error("folderSection 요소를 찾을 수 없습니다");
         }
 
         // 사용자의 폴더 로드
@@ -545,43 +585,99 @@
         xhr.send();  // 로그아웃은 보통 요청 본문이 필요 없음
     }
 
-    // 폴더 로드 함수 수정
+    // 사용자의 폴더 목록을 서버에서 로드
     function loadUserFolders() {
         const folderList = document.getElementById('foldersUl');
         if (!folderList) {
             console.error("foldersUl 요소를 찾을 수 없습니다");
             return;
         }
-
         folderList.innerHTML = '';
+        // 서버에서 폴더 목록 가져오기
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/v1/folders'); // 폴더 목록 API 엔드포인트
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.withCredentials = true; // 쿠키 포함
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    const folders = response.data; // ApiResponse에서 data 필드 추출
 
-        // 현재 사용자의 폴더 추가
-        if (currentUser) {
-            const userObj = users.find(u => u.username === currentUser.username);
-            if (userObj && userObj.folders) {
-                userObj.folders.forEach(folder => {
-                    const folderElement = document.createElement('li');
-                    folderElement.className = 'folder';
-                    folderElement.setAttribute('data-id', folder.id);
+                    // 폴더가 없는 경우 처리
+                    if (!folders || folders.length === 0) {
+                        const emptyMessage = document.createElement('p');
+                        emptyMessage.textContent = '폴더가 없습니다. 새 폴더를 추가해보세요.';
+                        folderList.appendChild(emptyMessage);
+                        return;
+                    }
 
-                    folderElement.innerHTML = `
-                    <input type="checkbox" class="folder-checkbox">
-                    <svg class="folder-icon" viewBox="0 0 24 24">
-                        <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-                    </svg>
-                    <div class="folder-title">${folder.name}</div>
-                    <div class="folder-count">${folder.cardCount} 카드</div>
-                `;
-
-                    folderElement.addEventListener('click', function () {
-                        const folderId = this.getAttribute('data-id');
-                        window.location.href = '/cards/' + folderId;
+                    // 폴더 목록 렌더링
+                    folders.forEach(folder => {
+                        const folderElement = document.createElement('li');
+                        folderElement.className = 'folder';
+                        folderElement.setAttribute('data-id', folder.id);
+                        folderElement.innerHTML = `
+                            <input type="checkbox" class="folder-checkbox">
+                            <svg class="folder-icon" viewBox="0 0 24 24">
+                              <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                            </svg>
+                            <div class="folder-title">${folder.name}</div>`;
+                        // <div className="folder-count">${folder.cardCount} 카드</div>
+                        folderElement.addEventListener('click', function() {
+                            const folderId = this.getAttribute('data-id');
+                            window.location.href = '/api/v1/folders/' + folderId;
+                        });
+                        folderList.appendChild(folderElement);
                     });
-
-                    folderList.appendChild(folderElement);
-                });
+                } catch (e) {
+                    console.error("폴더 목록 파싱 오류:", e);
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = '폴더 목록을 불러오는 중 오류가 발생했습니다.';
+                    folderList.appendChild(errorMessage);
+                }
+            } else {
+                console.error('폴더 목록 가져오기 실패:', xhr.status);
+                const errorMessage = document.createElement('p');
+                errorMessage.textContent = '폴더 목록을 불러오는 중 오류가 발생했습니다.';
+                folderList.appendChild(errorMessage);
             }
-        }
+        };
+        xhr.onerror = function() {
+            console.error('서버 연결 실패');
+            const errorMessage = document.createElement('p');
+            errorMessage.textContent = '서버 연결에 실패했습니다.';
+            folderList.appendChild(errorMessage);
+        };
+        xhr.send();
+    }
+
+    // 폴더 추가 함수 수정
+    function addFolder(folderName) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/v1/folders');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.withCredentials = true;
+
+        xhr.onload = function() {
+            if (xhr.status === 200 || xhr.status === 201) {
+                // 폴더 추가 성공 시 목록 새로고침
+                loadUserFolders();
+                closeAddFolderModal();
+            } else {
+                const error = document.getElementById('folderError');
+                error.textContent = '폴더 추가에 실패했습니다.';
+                error.style.display = 'block';
+            }
+        };
+
+        xhr.onerror = function() {
+            const error = document.getElementById('folderError');
+            error.textContent = '서버 연결에 실패했습니다.';
+            error.style.display = 'block';
+        };
+
+        xhr.send(JSON.stringify({ name: folderName }));
     }
 
     // 로그인 모달 표시
@@ -797,9 +893,10 @@
             });
         }
 
+        // 폴더 추가 버튼 이벤트 리스너 수정
         const addFolderSubmitBtn = document.getElementById('addFolderSubmitBtn');
         if (addFolderSubmitBtn) {
-            addFolderSubmitBtn.addEventListener('click', function () {
+            addFolderSubmitBtn.addEventListener('click', function() {
                 const folderName = document.getElementById('folderNameInput').value.trim();
                 const error = document.getElementById('folderError');
 
@@ -809,26 +906,8 @@
                     return;
                 }
 
-                if (currentUser) {
-                    const userObj = users.find(u => u.username === currentUser.username);
-                    if (userObj) {
-                        const newFolderId = userObj.folders.length > 0
-                            ? Math.max(...userObj.folders.map(f => f.id)) + 1
-                            : 1;
-
-                        userObj.folders.push({
-                            id: newFolderId,
-                            name: folderName,
-                            cardCount: 0
-                        });
-
-                        loadUserFolders();
-                        document.getElementById('addFolderModal').style.display = 'none';
-                        document.getElementById('folderNameInput').value = '';
-                    }
-                } else {
-                    showLoginModal();
-                }
+                // 서버에 폴더 추가 요청
+                addFolder(folderName);
             });
         }
     });
