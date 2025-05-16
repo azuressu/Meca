@@ -3,6 +3,7 @@ package com.meca.folder.service;
 import com.meca.folder.dto.FolderCreateRequest;
 import com.meca.folder.dto.FolderListResponse;
 import com.meca.folder.entity.Folder;
+import com.meca.folder.exception.FolderException;
 import com.meca.folder.repository.FolderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,4 +36,10 @@ public class FolderService {
     }
 
 
+    public String getFolderName(String folderId) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new FolderException(FolderException.FolderErrorType.FOLDER_NOT_FOUND));
+
+        return folder.getName();
+    }
 }
