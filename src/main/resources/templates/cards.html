@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>암기 카드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            color: #4CAF50;
+            font-size: 24px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 28px;
+        }
+
+        .folder-name {
+            font-size: 20px;
+            color: #aaa;
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-filters {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-filter {
+            background-color: #555;
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+
+        .btn-filter.active {
+            background-color: #4CAF50;
+        }
+
+        .search-bar {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            color: #f0f0f0;
+            border-radius: 5px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .btn-delete {
+            background-color: #f44336;
+        }
+
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #444;
+            height: 180px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            perspective: 1000px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .card.memorized {
+            border: 2px solid #4CAF50;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card-front {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .card-back {
+            display: none;
+            font-size: 16px;
+            color: #aaa;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            margin-top: auto;
+            margin-bottom: 25px;
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            top: 60px;
+            overflow-y: auto;
+        }
+
+        .card-hint {
+            font-size: 12px;
+            color: #666;
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 2px;
+            background-color: #2a2a2a;
+        }
+
+        .card-memorized-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .card-memorized-icon {
+            width: 18px;
+            height: 18px;
+            fill: #666;
+        }
+
+        .card.memorized .card-memorized-icon {
+            fill: #4CAF50;
+        }
+
+        .card-checkbox {
+            display: none;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            z-index: 5;
+        }
+
+        .add-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #444;
+            background-color: transparent;
+            height: 180px;
+        }
+
+        .add-card:hover {
+            border-color: #4CAF50;
+        }
+
+        .add-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+            fill: #aaa;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid #444;
+        }
+
+        .modal-title {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background-color: #333;
+            border: 1px solid #444;
+            color: #f0f0f0;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        textarea.form-input {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background-color: #666;
+        }
+
+        /* 카드 상세 모달 */
+        .card-detail-content {
+            padding: 30px;
+            max-width: 600px;
+        }
+
+        .card-detail-front {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .card-detail-back {
+            font-size: 18px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .card-detail-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+        }
+
+        .btn-edit:hover {
+            background-color: #1976D2;
+        }
+
+        /* 모바일 대응 스타일 */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .control-panel {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-filters {
+                width: 100%;
+            }
+
+            .search-bar {
+                width: 100%;
+            }
+
+            .filter-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header-title">
+        <a href="/" class="back-btn">←</a>
+        <h1>암기 카드</h1>
+        <span class="folder-name" th:text="${folderName}">폴더 이름</span>
+    </div>
+</header>
+
+<div class="control-panel">
+    <div class="search-filters">
+        <input type="text" class="search-bar" placeholder="카드 검색...">
+        <div class="filter-buttons">
+            <button class="btn btn-filter active" data-filter="all">전체</button>
+            <button class="btn btn-filter" data-filter="memorized">암기</button>
+            <button class="btn btn-filter" data-filter="not-memorized">미암기</button>
+        </div>
+    </div>
+    <div>
+        <button class="btn btn-add">카드 추가</button>
+        <button class="btn btn-delete">삭제</button>
+    </div>
+</div>
+
+<div class="card-grid" id="cardGrid">
+    <!-- JS에서 카드가 여기에 동적으로 추가됩니다 -->
+
+    <!-- 카드 추가 버튼 -->
+    <div class="card add-card" id="addCardBtn">
+        <svg class="add-icon" viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        <div class="card-front">새 카드 추가</div>
+    </div>
+</div>
+
+
+<!-- 카드 추가/수정 모달 -->
+<div class="modal" id="cardModal">
+    <div class="modal-content">
+        <h2 class="modal-title">새 카드 추가</h2>
+        <div id="cardForm">
+            <div class="form-group">
+                <label for="cardFront">앞면 (질문)</label>
+                <input type="text" id="cardFront" class="form-input" placeholder="질문을 입력하세요">
+            </div>
+            <div class="form-group">
+                <label for="cardBack">뒷면 (답변)</label>
+                <textarea id="cardBack" class="form-input" placeholder="답변을 입력하세요"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-cancel">취소</button>
+                <button type="button" class="btn btn-save">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 카드 상세 모달 -->
+<div class="modal" id="cardDetailModal">
+    <div class="modal-content card-detail-content">
+        <div class="card-detail-front">카드 앞면</div>
+        <div class="card-separator"></div>
+        <div class="card-detail-back">카드 뒷면 내용이 여기에 표시됩니다.</div>
+        <div class="card-detail-actions">
+            <button class="btn btn-edit">수정</button>
+            <button class="btn btn-cancel">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const folderId = window.location.pathname.split("/").pop();
+        const cardGrid = document.getElementById("cardGrid");
+        const addCardBtn = document.getElementById("addCardBtn");
+
+        // 카드 로딩
+        function loadCards() {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", `/api/v1/cards/${folderId}`);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    const cards = response.data;
+                    renderCards(cards);
+                }
+            };
+            xhr.send();
+        }
+
+        // 카드 리스트
+        function renderCards(cards) {
+            const allCards = cardGrid.querySelectorAll(".card:not(#addCardBtn)");
+            allCards.forEach(card => card.remove());
+
+            cards.forEach(card => {
+                const cardEl = document.createElement("div");
+                cardEl.className = `card ${card.memorized ? 'memorized' : ''}`;
+                cardEl.setAttribute("data-id", card.id);
+                cardEl.setAttribute("data-memorized", card.memorized);
+
+                cardEl.innerHTML = `
+                <input type="checkbox" class="card-checkbox" style="display:none">
+                <div class="card-memorized-btn">
+                    <svg class="card-memorized-icon" viewBox="0 0 24 24">
+                        <path d="M9 16.17l-4.17-4.17-1.42 1.41 5.59 5.59 12-12-1.41-1.41z"/>
+                    </svg>
+                </div>
+                <div class="card-inner">
+                    <div class="card-front">${card.front}</div>
+                    <div class="card-back" style="display:none">${card.back}</div>
+                    <div class="card-hint">클릭하여 정답 보기</div>
+                </div>
+            `;
+                cardGrid.insertBefore(cardEl, addCardBtn);
+            });
+
+            attachCardEvents(); // 이벤트 재연결
+        }
+
+        // 카드 숨김/보이기 처리
+        function attachCardEvents() {
+            // 카드 클릭 시 뒷면 표시/숨김 처리
+            document.querySelectorAll('.card:not(.add-card)').forEach(card => {
+                card.addEventListener('click', function (e) {
+                    if (
+                        e.target.classList.contains('card-checkbox') ||
+                        e.target.classList.contains('card-memorized-btn') ||
+                        e.target.classList.contains('card-memorized-icon') ||
+                        document.querySelector('.card-checkbox').style.display === 'block'
+                    ) return;
+
+                    if (e.target.classList.contains('card-front')) {
+                        showCardDetail(this);
+                        return;
+                    }
+
+                    const back = this.querySelector('.card-back');
+                    const hint = this.querySelector('.card-hint');
+                    if (back.style.display === 'block') {
+                        back.style.display = 'none';
+                        hint.textContent = '클릭하여 정답 보기';
+                    } else {
+                        back.style.display = 'block';
+                        hint.textContent = '클릭하여 정답 숨기기';
+                    }
+                });
+            });
+
+            // 암기 완료 버튼
+            document.querySelectorAll('.card-memorized-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const card = this.closest('.card');
+                    const cardId = card.getAttribute('data-id');
+                    const newState = !card.classList.contains('memorized');
+                    card.classList.toggle('memorized');
+
+                    fetch(`/api/v1/cards/${cardId}/memorized`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ memorized: newState })
+                    });
+                });
+            });
+        }
+
+        // 필터링
+        document.querySelectorAll('.btn-filter').forEach(filterBtn => {
+            filterBtn.addEventListener('click', function () {
+                document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                const filterType = this.getAttribute('data-filter');
+                const cards = document.querySelectorAll('.card:not(.add-card)');
+                cards.forEach(card => {
+                    switch (filterType) {
+                        case 'all':
+                            card.style.display = 'flex';
+                            break;
+                        case 'memorized':
+                            card.style.display = card.classList.contains('memorized') ? 'flex' : 'none';
+                            break;
+                        case 'not-memorized':
+                            card.style.display = !card.classList.contains('memorized') ? 'flex' : 'none';
+                            break;
+                    }
+                });
+            });
+        });
+
+        // 카드 상세 보기
+        function showCardDetail(card) {
+            const front = card.querySelector('.card-front').textContent;
+            const back = card.querySelector('.card-back').textContent;
+            const cardId = card.getAttribute('data-id');
+
+            document.querySelector('.card-detail-front').textContent = front;
+            document.querySelector('.card-detail-back').textContent = back;
+            document.querySelector('#cardDetailModal').setAttribute('data-id', cardId);
+            document.getElementById('cardDetailModal').style.display = 'flex';
+        }
+
+        // 수정 버튼 → 카드 수정 모달
+        document.querySelector('.btn-edit').addEventListener('click', function () {
+            const front = document.querySelector('.card-detail-front').textContent;
+            const back = document.querySelector('.card-detail-back').textContent;
+            const cardId = document.querySelector('#cardDetailModal').getAttribute('data-id');
+
+            document.querySelector('#cardModal .modal-title').textContent = '카드 수정';
+            document.getElementById('cardFront').value = front;
+            document.getElementById('cardBack').value = back;
+            document.getElementById('cardModal').setAttribute('data-id', cardId);
+
+            document.getElementById('cardDetailModal').style.display = 'none';
+            document.getElementById('cardModal').style.display = 'flex';
+        });
+
+        // 저장 버튼 → 카드 추가/수정
+        document.querySelector('.btn-save').addEventListener('click', () => {
+            const front = document.getElementById('cardFront').value.trim();
+            const back = document.getElementById('cardBack').value.trim();
+            const cardId = document.querySelector('#cardDetailModal').getAttribute('data-id');
+
+            if (!front || !back) {
+                alert("앞면과 뒷면 모두 입력해주세요.");
+                return;
+            }
+
+            const method = cardId ? 'PUT' : 'POST';
+            const url = cardId ? `/api/v1/cards/${cardId}` : `/api/v1/cards/${folderId}`;
+
+            fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ front, back })
+            }).then(response => {
+                if (response.ok) {
+                    document.getElementById('cardModal').style.display = 'none';
+                    document.getElementById('cardModal').removeAttribute('data-id');
+                    loadCards();
+                } else {
+                    alert("저장 실패");
+                }
+            });
+        });
+
+        // 모달 닫기
+        document.querySelectorAll('.btn-cancel').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('cardModal').style.display = 'none';
+                document.getElementById('cardDetailModal').style.display = 'none';
+            });
+        });
+
+        // 상단/하단 추가 버튼
+        document.querySelectorAll('.btn-add, .add-card').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('#cardModal .modal-title').textContent = '새 카드 추가';
+                document.getElementById('cardFront').value = '';
+                document.getElementById('cardBack').value = '';
+                document.getElementById('cardModal').removeAttribute('data-id');
+                document.getElementById('cardModal').style.display = 'flex';
+            });
+        });
+
+        // 삭제 모드 진입
+        document.querySelector('.btn-delete').addEventListener('click', function () {
+            const checkboxes = document.querySelectorAll('.card-checkbox');
+            const isDeleteMode = checkboxes[0].style.display === 'block';
+
+            checkboxes.forEach(cb => cb.style.display = isDeleteMode ? 'none' : 'block');
+            this.textContent = isDeleteMode ? '삭제' : '선택 삭제';
+        });
+
+        loadCards();
+
+        // "선택 삭제" 모드일 때 다시 누르면 삭제 수행
+        document.querySelector('.btn-delete').addEventListener('click', function () {
+            const checkboxes = document.querySelectorAll('.card-checkbox');
+            const isDeleteMode = checkboxes[0].style.display === 'block';
+
+            if (!isDeleteMode) {
+                // 삭제 모드 진입
+                checkboxes.forEach(cb => cb.style.display = 'block');
+                this.textContent = '선택 삭제';
+            } else {
+                // 실제 삭제 수행
+                const selectedCards = Array.from(checkboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.closest('.card').getAttribute('data-id'));
+
+                if (selectedCards.length === 0) {
+                    alert("삭제할 카드를 선택하세요.");
+                    return;
+                }
+
+                if (!confirm("선택한 카드를 삭제하시겠습니까?")) return;
+
+                // 여러 카드 삭제 (간단하게 하나씩 삭제 요청 보내기)
+                Promise.all(selectedCards.map(id =>
+                    fetch(`/api/v1/cards/${id}`, { method: 'DELETE' })
+                )).then(() => {
+                    // 카드 다시 불러오기
+                    loadCards();
+
+                    // 삭제 모드 종료
+                    checkboxes.forEach(cb => {
+                        cb.style.display = 'none';
+                        cb.checked = false;
+                    });
+                    this.textContent = '삭제';
+                }).catch(() => {
+                    alert("삭제 중 오류가 발생했습니다.");
+                });
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>
