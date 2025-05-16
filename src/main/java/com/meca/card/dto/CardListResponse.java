@@ -20,12 +20,15 @@ public class CardListResponse {
 
     private String folderId;
 
+    private boolean memorized;
+
     public static CardListResponse from(Card card) {
         return CardListResponse.builder()
                 .id(card.getId())
                 .front(card.getFront())
                 .back(card.getBack())
                 .folderId(card.getFolderId())
+                .memorized(card.getMemorised())
                 .build();
     }
 
