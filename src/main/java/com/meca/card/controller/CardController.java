@@ -1,6 +1,7 @@
 package com.meca.card.controller;
 
 import com.meca.card.dto.CardListResponse;
+import com.meca.card.dto.CardMemorizedRequest;
 import com.meca.card.dto.CreateCardRequest;
 import com.meca.card.service.CardService;
 import com.meca.common.dto.ApiResponse;
@@ -47,6 +48,14 @@ public class CardController {
     public ResponseEntity<ApiResponse> deleteCard(@PathVariable String cardId,
                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
         cardService.deleteCard(cardId, userDetails.getUsername());
+        return ResponseEntity.ok(new ApiResponse("success", "success"));
+    }
+
+    @PostMapping("/{cardId}/memorized")
+    public ResponseEntity<ApiResponse> updateMemorizedCard(@PathVariable String cardId,
+                                                           @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                           @RequestBody CardMemorizedRequest request) {
+        cardService.updateMemorizedCard(cardId, userDetails.getUsername(), request);
         return ResponseEntity.ok(new ApiResponse("success", "success"));
     }
 

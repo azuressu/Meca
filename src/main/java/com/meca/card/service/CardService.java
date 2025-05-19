@@ -1,6 +1,7 @@
 package com.meca.card.service;
 
 import com.meca.card.dto.CardListResponse;
+import com.meca.card.dto.CardMemorizedRequest;
 import com.meca.card.dto.CreateCardRequest;
 import com.meca.card.entity.Card;
 import com.meca.card.exception.CardException;
@@ -65,10 +66,21 @@ public class CardService {
         cardRepository.save(card);
     }
 
+    @Transactional
+    public void updateMemorizedCard(String cardId, String username, CardMemorizedRequest request) {
+        Card card = findCard(cardId);
+
+        if (!card.getUsername().equals(username)) {
+            throw new CardException(CardException.CardErrorType.PERMISSION_DENIED);
+        }
+
+        card.updateCardMemorizable(request.getMemorized());
+        cardRepository.save(card);
+    }
+
     private Card findCard(String cardId) {
         return cardRepository.findById(cardId)
                 .orElseThrow(() -> new CardException(CardException.CardErrorType.CARD_NOT_FOUND));
     }
-
 
 }

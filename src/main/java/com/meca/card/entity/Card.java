@@ -39,4 +39,7 @@ public class Card extends AuditingDocument {
         this.back = back;
     }
 
+    public void updateCardMemorizable(Boolean memorized) {
+        this.memorised = memorized;
+    }
 }
