@@ -25,4 +25,7 @@ public class Folder extends AuditingDocument {
     @Field
     private String name;
 
+    public void updateFolderName(String name) {
+        this.name = name;
+    }
 }

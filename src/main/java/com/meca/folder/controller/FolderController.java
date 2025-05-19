@@ -3,6 +3,7 @@ package com.meca.folder.controller;
 import com.meca.common.dto.ApiResponse;
 import com.meca.folder.dto.FolderCreateRequest;
 import com.meca.folder.dto.FolderListResponse;
+import com.meca.folder.dto.FolderUpdateRequest;
 import com.meca.folder.service.FolderService;
 import com.meca.security.impl.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,21 @@ public class FolderController {
     public ResponseEntity<ApiResponse<List<FolderListResponse>>> getAllFolders(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<FolderListResponse> responses = folderService.getAllFolders(userDetails.getUsername());
         return ResponseEntity.ok(new ApiResponse<>("All Folders Success", responses));
+    }
+
+    @PutMapping("/{folderId}")
+    public ResponseEntity<ApiResponse> updateFolder(@PathVariable String folderId,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                    @RequestBody FolderUpdateRequest request) {
+        folderService.updateFolder(folderId, userDetails.getUsername(), request);
+        return ResponseEntity.ok(new ApiResponse<>("success", "success"));
+    }
+
+    @DeleteMapping("/{folderId}")
+    public ResponseEntity<ApiResponse> deleteFolder(@PathVariable String folderId,
+                                                    @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        folderService.deleteFolder(folderId, userDetails.getUsername());
+        return ResponseEntity.ok(new ApiResponse<>("success", "success"));
     }
 
 }

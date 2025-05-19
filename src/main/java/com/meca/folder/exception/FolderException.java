@@ -11,7 +11,8 @@ public class FolderException extends CommonException {
     }
 
     public enum FolderErrorType {
-        FOLDER_NOT_FOUND("FOLDER_001", HttpStatus.NOT_FOUND, "폴더를 찾을 수 없습니다.");
+        FOLDER_NOT_FOUND("FOLDER_001", HttpStatus.NOT_FOUND, "폴더를 찾을 수 없습니다."),
+        PERMISSION_DENIED("FOLDER_002", HttpStatus.UNAUTHORIZED, "권한이 없습니다.");
 
         private final String code;
         private final HttpStatus status;

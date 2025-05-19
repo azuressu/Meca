@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FolderRepository extends MongoRepository<Folder, String> {
     List<Folder> findByUsername(String username);
+
+    List<Folder> findByUsernameAndIsDeleted(String username, boolean b);
 }
