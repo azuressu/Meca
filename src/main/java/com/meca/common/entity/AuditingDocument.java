@@ -21,8 +21,15 @@ public abstract class AuditingDocument {
     @Field("deletedAt")
     private LocalDateTime deletedAt;
 
+    @Field("isDeleted")
+    private Boolean isDeleted = false;
+
     public void updateDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public void updateIsDeleted() {
+        this.isDeleted = true;
     }
 
 }

@@ -43,4 +43,11 @@ public class CardController {
         return ResponseEntity.ok(new ApiResponse("success", "success"));
     }
 
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<ApiResponse> deleteCard(@PathVariable String cardId,
+                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardService.deleteCard(cardId, userDetails.getUsername());
+        return ResponseEntity.ok(new ApiResponse("success", "success"));
+    }
+
 }

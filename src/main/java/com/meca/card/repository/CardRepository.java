@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CardRepository extends MongoRepository<Card, String> {
     List<Card> findByFolderId(String folderId);
+
+    List<Card> findByFolderIdAndIsDeleted(String folderId, boolean isDeleted);
 }
