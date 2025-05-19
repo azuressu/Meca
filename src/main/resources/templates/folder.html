@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>폴더 관리 앱</title>
+    <title>암기 폴더</title>
     <style>
         @font-face {
             font-family: 'Freesentation-9Black';
@@ -94,11 +94,24 @@
 
         .btn-delete {
             background-color: #f44336;
-            display: none;
         }
 
         .btn-delete:hover {
             background-color: #d32f2f;
+        }
+
+        .btn-trash {
+            background-color: #555;
+            margin-left: 10px;
+        }
+
+        .btn-trash:hover {
+            background-color: #666;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
         }
 
         .btn-login {
@@ -140,6 +153,40 @@
         .folder:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1em;
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+        }
+
+        .folder {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .folder-edit-btn {
+            visibility: hidden;
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .folder:hover .folder-edit-btn {
+            visibility: visible;
         }
 
         .folder-icon {
@@ -370,16 +417,39 @@
 </header>
 
 <main>
-    <!-- HTML 수정 -->
     <section id="folderSection" class="folder-grid" style="display: none;">
-        <h2>내 폴더</h2>
+        <div class="folder-header">
+            <h2>내 폴더</h2>
+            <div class="header-buttons">
+                <button id="showAddFolderBtn" class="btn">폴더 추가</button>
+<!--                <button id="showTrashBtn" class="btn btn-trash">휴지통</button>-->
+            </div>
+        </div>
         <div id="folderList">
             <ul id="foldersUl">
                 <!-- 폴더 목록은 JavaScript에서 동적으로 로드됨 -->
             </ul>
         </div>
-        <button id="showAddFolderBtn" class="btn" style="margin-top:1em;">폴더 추가</button>
     </section>
+
+    <!-- 폴더명 수정 모달 추가 -->
+    <div class="modal" id="editFolderModal">
+        <div class="modal-content">
+            <h3 class="modal-title">폴더명 수정</h3>
+            <div class="form-group">
+                <label for="editFolderNameInput">폴더명</label>
+                <input type="text" id="editFolderNameInput" class="form-input" placeholder="새 폴더 이름을 입력하세요"/>
+                <input type="hidden" id="editFolderId">
+            </div>
+            <div class="error-message" id="editFolderError"></div>
+            <!-- 폴더명 수정 모달 내부 modal-actions 클래스 안에 삭제 버튼 추가 -->
+            <div class="modal-actions">
+                <button type="button" id="deleteFolderBtn" class="btn btn-delete">삭제</button>
+                <button type="button" id="editFolderCancelBtn" class="btn btn-cancel">취소</button>
+                <button type="button" id="editFolderSubmitBtn" class="btn">수정</button>
+            </div>
+        </div>
+    </div>
 </main>
 
 <!-- 로그인 전 화면 -->
@@ -452,23 +522,6 @@
 </body>
 
 <script>
-    // 사용자 데이터 (실제로는 서버에서 관리해야 함)
-    const users = [
-        {
-            username: "user1", password: "password1", folders: [
-                {id: 1, name: "영어 단어", cardCount: 25},
-                {id: 2, name: "한국사", cardCount: 42}
-            ]
-        },
-        {
-            username: "user2", password: "password2", folders: [
-                {id: 1, name: "수학 공식", cardCount: 15},
-                {id: 2, name: "과학 용어", cardCount: 30},
-                {id: 3, name: "프로그래밍", cardCount: 22}
-            ]
-        }
-    ];
-
     // 현재 로그인된 사용자
     let currentUser = null;
 
@@ -479,6 +532,69 @@
             currentUser = JSON.parse(savedUser);
             updateUIForLoggedInUser();
         }
+    }
+
+    // 폴더명 수정 모달 표시
+    function showEditFolderModal(folderId, currentName) {
+        document.getElementById('editFolderId').value = folderId;
+        document.getElementById('editFolderNameInput').value = currentName;
+        document.getElementById('editFolderModal').style.display = 'flex';
+        document.getElementById('editFolderNameInput').focus();
+    }
+
+    // 폴더명 수정 모달 닫기
+    function closeEditFolderModal() {
+        document.getElementById('editFolderModal').style.display = 'none';
+        document.getElementById('editFolderNameInput').value = '';
+        document.getElementById('editFolderError').style.display = 'none';
+    }
+
+    function updateFolderName() {
+        const folderId = document.getElementById('editFolderId').value;
+        const newName = document.getElementById('editFolderNameInput').value.trim();
+        const error = document.getElementById('editFolderError');
+        error.style.display = 'none';
+
+        if (!newName) {
+            error.textContent = '폴더명을 입력해주세요.';
+            error.style.display = 'block';
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', `/api/v1/folders/${folderId}`);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.withCredentials = true;
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        // 폴더명 수정 성공 시 목록 새로고침
+                        loadUserFolders();
+                        closeEditFolderModal();
+                    } else {
+                        error.textContent = response.data || '폴더명 수정에 실패했습니다.';
+                        error.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error("JSON 파싱 에러:", e);
+                    error.textContent = '서버 응답 형식 오류';
+                    error.style.display = 'block';
+                }
+            } else {
+                error.textContent = '폴더명 수정에 실패했습니다.';
+                error.style.display = 'block';
+            }
+        };
+
+        xhr.onerror = function () {
+            error.textContent = '서버 연결에 실패했습니다.';
+            error.style.display = 'block';
+        };
+
+        xhr.send(JSON.stringify({name: newName}));
     }
 
     // 로그인 시 UI 업데이트 수정 (로그아웃 버튼 표시 포함)
@@ -537,7 +653,7 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.withCredentials = true; // 쿠키 포함
 
-        xhr.onload = function() {
+        xhr.onload = function () {
             console.log('상태 코드:', xhr.status);
             console.log('응답 텍스트:', xhr.responseText);
 
@@ -577,7 +693,7 @@
             }
         };
 
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             console.error('서버 연결 실패');
 
             // 연결 실패해도 로그아웃 처리
@@ -605,7 +721,7 @@
         xhr.open('GET', '/api/v1/folders'); // 폴더 목록 API 엔드포인트
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.withCredentials = true; // 쿠키 포함
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (xhr.status === 200) {
                 try {
                     const response = JSON.parse(xhr.responseText);
@@ -624,17 +740,38 @@
                         const folderElement = document.createElement('li');
                         folderElement.className = 'folder';
                         folderElement.setAttribute('data-id', folder.id);
+
+                        // 수정 버튼 추가
                         folderElement.innerHTML = `
-                            <input type="checkbox" class="folder-checkbox">
-                            <svg class="folder-icon" viewBox="0 0 24 24">
-                              <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-                            </svg>
-                            <div class="folder-title">${folder.name}</div>`;
-                        // <div className="folder-count">${folder.cardCount} 카드</div>
-                        folderElement.addEventListener('click', function() {
+                        <input type="checkbox" class="folder-checkbox">
+                        <svg class="folder-icon" viewBox="0 0 24 24">
+                          <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                        </svg>
+                        <div class="folder-title">${folder.name}</div>
+                        <button class="folder-edit-btn" title="폴더명 수정">✏️</button>`;
+
+                        // 폴더 클릭 이벤트: 폴더 내용 보기
+                        folderElement.addEventListener('click', function (e) {
+                            // 편집 버튼을 클릭한 경우 이벤트 전파 중지
+                            if (e.target.classList.contains('folder-edit-btn')) {
+                                e.stopPropagation();
+                                return;
+                            }
+
                             const folderId = this.getAttribute('data-id');
                             window.location.href = '/api/v1/folders/' + folderId;
                         });
+
+                        // 편집 버튼 클릭 이벤트 별도 처리
+                        const editBtn = folderElement.querySelector('.folder-edit-btn');
+                        editBtn.addEventListener('click', function (e) {
+                            e.stopPropagation(); // 버블링 방지
+                            const folder = this.closest('.folder');
+                            const folderId = folder.getAttribute('data-id');
+                            const folderName = folder.querySelector('.folder-title').textContent;
+                            showEditFolderModal(folderId, folderName);
+                        });
+
                         folderList.appendChild(folderElement);
                     });
                 } catch (e) {
@@ -650,7 +787,7 @@
                 folderList.appendChild(errorMessage);
             }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             console.error('서버 연결 실패');
             const errorMessage = document.createElement('p');
             errorMessage.textContent = '서버 연결에 실패했습니다.';
@@ -666,7 +803,7 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.withCredentials = true;
 
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (xhr.status === 200 || xhr.status === 201) {
                 // 폴더 추가 성공 시 목록 새로고침
                 loadUserFolders();
@@ -678,13 +815,13 @@
             }
         };
 
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             const error = document.getElementById('folderError');
             error.textContent = '서버 연결에 실패했습니다.';
             error.style.display = 'block';
         };
 
-        xhr.send(JSON.stringify({ name: folderName }));
+        xhr.send(JSON.stringify({name: folderName}));
     }
 
     // 로그인 모달 표시
@@ -727,6 +864,43 @@
         document.getElementById('addFolderModal').style.display = 'none';
         document.getElementById('folderNameInput').value = '';
         document.getElementById('folderError').style.display = 'none';
+    }
+
+    // 폴더 삭제 함수
+    function deleteFolder(folderId) {
+        if (!confirm('정말로 이 폴더를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('DELETE', `/api/v1/folders/${folderId}`);
+        xhr.withCredentials = true;
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        // 폴더 삭제 성공 시 목록 새로고침
+                        loadUserFolders();
+                        closeEditFolderModal();
+                    } else {
+                        alert(response.data || '폴더 삭제에 실패했습니다.');
+                    }
+                } catch (e) {
+                    console.error("JSON 파싱 에러:", e);
+                    alert('서버 응답 형식 오류');
+                }
+            } else {
+                alert('폴더 삭제에 실패했습니다.');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('서버 연결에 실패했습니다.');
+        };
+
+        xhr.send();
     }
 
     // 로그인 처리
@@ -900,10 +1074,10 @@
             });
         }
 
-        // 폴더 추가 버튼 이벤트 리스너 수정
+        // 폴더 추가 버튼 이벤트 리스너
         const addFolderSubmitBtn = document.getElementById('addFolderSubmitBtn');
         if (addFolderSubmitBtn) {
-            addFolderSubmitBtn.addEventListener('click', function() {
+            addFolderSubmitBtn.addEventListener('click', function () {
                 const folderName = document.getElementById('folderNameInput').value.trim();
                 const error = document.getElementById('folderError');
 
@@ -917,6 +1091,35 @@
                 addFolder(folderName);
             });
         }
+
+        // 폴더명 수정 모달 이벤트 리스너
+        const editFolderCancelBtn = document.getElementById('editFolderCancelBtn');
+        if (editFolderCancelBtn) {
+            editFolderCancelBtn.addEventListener('click', closeEditFolderModal);
+        }
+
+        const editFolderSubmitBtn = document.getElementById('editFolderSubmitBtn');
+        if (editFolderSubmitBtn) {
+            editFolderSubmitBtn.addEventListener('click', updateFolderName);
+        }
+
+        // 폴더 삭제 버튼 이벤트 리스너
+        const deleteFolderBtn = document.getElementById('deleteFolderBtn');
+        if (deleteFolderBtn) {
+            deleteFolderBtn.addEventListener('click', function () {
+                const folderId = document.getElementById('editFolderId').value;
+                deleteFolder(folderId);
+            });
+        }
+
+        // 휴지통 버튼 이벤트 리스너
+        const showTrashBtn = document.getElementById('showTrashBtn');
+        if (showTrashBtn) {
+            showTrashBtn.addEventListener('click', function () {
+                alert('구현 예정입니다.');
+            });
+        }
+
     });
 
 </script>
