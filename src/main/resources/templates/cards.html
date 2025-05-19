@@ -653,30 +653,31 @@
             });
         });
 
-        // 삭제 모드 진입
-        document.querySelector('.btn-delete').addEventListener('click', function () {
-            const checkboxes = document.querySelectorAll('.card-checkbox');
-            const isDeleteMode = checkboxes[0].style.display === 'block';
-
-            checkboxes.forEach(cb => cb.style.display = isDeleteMode ? 'none' : 'block');
-            this.textContent = isDeleteMode ? '삭제' : '선택 삭제';
-        });
-
         loadCards();
 
-        // "선택 삭제" 모드일 때 다시 누르면 삭제 수행
-        document.querySelector('.btn-delete').addEventListener('click', function () {
+        // 버튼 선택자 수정 - 클래스명을 정확히 지정
+        document.querySelector('.btn-delete').addEventListener('click', function() {
             const checkboxes = document.querySelectorAll('.card-checkbox');
-            const isDeleteMode = checkboxes[0].style.display === 'block';
+            const isDeleteMode = checkboxes.length > 0 && getComputedStyle(checkboxes[0]).display === 'block';
 
             if (!isDeleteMode) {
-                // 삭제 모드 진입
-                checkboxes.forEach(cb => cb.style.display = 'block');
+                // ✅ 삭제 모드 진입
+                const cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    // 🔥 조건 추가: data-id가 있을 때만 체크박스 생성
+                    if (card.getAttribute('data-id')) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'card-checkbox';
+                        checkbox.style.display = 'block';
+                        checkbox.style.marginRight = '8px';
+                        card.prepend(checkbox);
+                    }
+                });
                 this.textContent = '선택 삭제';
             } else {
-                // 실제 삭제 수행
-                const selectedCards = Array.from(checkboxes)
-                    .filter(cb => cb.checked)
+                // ✅ 삭제 수행
+                const selectedCards = Array.from(document.querySelectorAll('.card-checkbox:checked'))
                     .map(cb => cb.closest('.card').getAttribute('data-id'));
 
                 if (selectedCards.length === 0) {
@@ -686,20 +687,28 @@
 
                 if (!confirm("선택한 카드를 삭제하시겠습니까?")) return;
 
-                // 여러 카드 삭제 (간단하게 하나씩 삭제 요청 보내기)
                 Promise.all(selectedCards.map(id =>
                     fetch(`/api/v1/cards/${id}`, { method: 'DELETE' })
-                )).then(() => {
-                    // 카드 다시 불러오기
-                    loadCards();
+                )).then(responses => {
+                    // 모든 응답이 성공했는지 확인
+                    const allSuccessful = responses.every(response => response.ok);
+                    if (allSuccessful) {
+                        // 체크박스 제거
+                        document.querySelectorAll('.card-checkbox').forEach(cb => cb.remove());
+                        this.textContent = '삭제';
 
-                    // 삭제 모드 종료
-                    checkboxes.forEach(cb => {
-                        cb.style.display = 'none';
-                        cb.checked = false;
-                    });
-                    this.textContent = '삭제';
-                }).catch(() => {
+                        // 카드 목록 다시 로드
+                        if (typeof loadCards === 'function') {
+                            loadCards();
+                        } else {
+                            // loadCards 함수가 없으면 페이지 새로고침
+                            location.reload();
+                        }
+                    } else {
+                        alert("일부 카드 삭제에 실패했습니다.");
+                    }
+                }).catch(error => {
+                    console.error("삭제 중 오류 발생:", error);
                     alert("삭제 중 오류가 발생했습니다.");
                 });
             }
