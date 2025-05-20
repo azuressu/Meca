@@ -400,6 +400,126 @@
                 font-size: 16px;
             }
         }
+
+        /* 추가 모바일 대응 스타일 */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .header-buttons {
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+            }
+
+            .folder-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            #foldersUl {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+
+            #foldersUl li.folder {
+                padding: 10px;
+            }
+
+            .folder-icon {
+                width: 32px;
+                height: 32px;
+                margin-bottom: 8px;
+            }
+
+            .folder-title {
+                font-size: 14px;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .modal-actions button {
+                width: 100%;
+            }
+
+            .form-input {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .form-group label {
+                font-size: 14px;
+            }
+
+            .user-info {
+                font-size: 14px;
+            }
+        }
+
+        /* 중간 크기 화면을 위한 추가 스타일 */
+        @media (max-width: 600px) and (min-width: 481px) {
+            .folder-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+
+            #foldersUl {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                width: 90%;
+            }
+        }
+
+        /* 모바일에서 모달 개선 */
+        @media (max-width: 768px) {
+            .modal {
+                align-items: flex-end;
+            }
+
+            .modal-content {
+                border-radius: 15px 15px 0 0;
+                padding-bottom: 30px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        /* 다크 모드 대응 향상 */
+        @media (prefers-color-scheme: dark) {
+            .folder:hover {
+                box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1123,4 +1243,5 @@
     });
 
 </script>
+
 </html>

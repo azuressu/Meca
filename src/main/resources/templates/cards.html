@@ -64,12 +64,19 @@
             justify-content: space-between;
             margin-bottom: 20px;
             align-items: center;
+            gap: 20px;
         }
 
         .search-filters {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            flex-grow: 1;
+        }
+
+        .control-panel > div {
+            display: flex;
+            gap: 8px;
         }
 
         .filter-buttons {
@@ -353,6 +360,147 @@
             background-color: #1976D2;
         }
 
+        /* 암기 모드 버튼 스타일 */
+        .btn-memorize-mode {
+            background-color: #9C27B0;
+        }
+
+        .btn-memorize-mode:hover {
+            background-color: #7B1FA2;
+        }
+
+        /* 암기 모드 컨테이너 스타일 */
+        /* 암기 모드 컨테이너 스타일 */
+        .memorize-mode {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e1e1e;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .memorize-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        .memorize-counter {
+            font-size: 18px;
+            color: #4CAF50;
+        }
+
+        .card-carousel {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .memorize-card {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            perspective: 1000px;
+        }
+
+        .memorize-card-inner {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            height: 60%;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .memorize-card-flipped .memorize-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memorize-card-front,
+        .memorize-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .memorize-card-front {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .memorize-card-back {
+            transform: rotateY(180deg);
+            background-color: #333;
+            font-size: 20px;
+        }
+
+        .memorize-card-hint {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .memorize-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .memorize-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .memorize-btn-correct {
+            background-color: #4CAF50;
+        }
+
+        .memorize-btn-wrong {
+            background-color: #f44336;
+        }
+
+        /* 터치 이벤트 관련 스타일 */
+        .swipe-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
         /* 모바일 대응 스타일 */
         @media (max-width: 768px) {
             header {
@@ -383,6 +531,199 @@
             .card-grid {
                 grid-template-columns: 1fr;
             }
+
+            .memorize-card-inner {
+                width: 95%;
+                height: 50%;
+            }
+
+            .memorize-card-front {
+                font-size: 20px;
+            }
+
+            .memorize-card-back {
+                font-size: 16px;
+            }
+
+            .memorize-buttons {
+                width: 95%;
+            }
+
+            /* 기본 레이아웃 */
+            .header-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .folder-name {
+                font-size: 16px;
+                margin-top: 5px;
+            }
+
+            .control-panel {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .search-filters {
+                width: 100%;
+            }
+
+            .filter-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .search-bar {
+                width: 100%;
+                font-size: 16px; /* 모바일에서 더 큰 글꼴 */
+                padding: 12px 15px; /* 탭하기 쉽게 패딩 증가 */
+            }
+
+            .btn {
+                padding: 12px 15px; /* 모바일에서 버튼 클릭 영역 확대 */
+                font-size: 16px;
+            }
+
+            /* 카드 그리드 */
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .card {
+                height: 160px; /* 모바일에서 좀 더 작게 */
+            }
+
+            /* 암기 모드 스타일 */
+            .memorize-mode {
+                height: 100vh;
+                width: 100vw;
+                position: fixed;
+                top: 0;
+                left: 0;
+            }
+
+            /* 추가: 암기 모드 컨테이너 내부 요소 배치 수정 */
+            .memorize-container {
+                position: relative;
+                height: calc(100% - 60px); /* 헤더 높이 제외 */
+                overflow: hidden;
+                touch-action: pan-x; /* 수평 스와이프만 허용 */
+            }
+
+            .memorize-header {
+                padding: 15px;
+                align-items: center;
+                height: 60px; /* 높이 명시 */
+                display: flex; /* 명시적으로 flex 지정 */
+                justify-content: space-between; /* 양쪽 정렬 */
+            }
+
+            .memorize-counter {
+                font-size: 18px;
+                font-weight: bold;
+            }
+
+            .memorize-card-inner {
+                width: 92%;
+                height: 60vh;
+                max-height: 500px;
+                margin: 0 auto;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            .memorize-card-front,
+            .memorize-card-back {
+                padding: 20px 15px;
+                font-size: 20px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; /* iOS에서 부드러운 스크롤 */
+            }
+
+            .memorize-card-back {
+                font-size: 18px;
+                line-height: 1.5;
+            }
+
+            .memorize-card-hint {
+                font-size: 14px;
+                position: absolute;
+                bottom: 10px;
+                width: 100%;
+                text-align: center;
+                color: #888;
+                background-color: rgba(0, 0, 0, 0.05);
+                padding: 5px 0;
+            }
+
+            .memorize-buttons {
+                display: flex;
+                justify-content: space-around;
+                width: 92%;
+                margin: 15px auto 0;
+            }
+
+            .btn-exit-memorize {
+                position: relative;
+                z-index: 2001; /* memorizeMode의 z-index보다 높게 설정 */
+            }
+
+            .memorize-btn {
+                flex: 1;
+                margin: 0 5px;
+                padding: 15px 10px;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            /* 모달 스타일 수정 */
+            .modal-content {
+                width: 95%;
+                padding: 20px 15px;
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+
+            .form-input {
+                font-size: 16px; /* iOS에서 확대 방지 */
+                padding: 12px;
+            }
+
+            textarea.form-input {
+                height: 150px;
+            }
+
+            /* 확대/축소 방지 */
+            body {
+                touch-action: manipulation;
+            }
+
+            /* 더블탭 방지 스타일 */
+            * {
+                touch-action: manipulation;
+            }
+
+            /* 암기 카드 기능 애니메이션 최적화 */
+            .memorize-card-inner {
+                will-change: transform;
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            /* iOS 최적화 */
+            .memorize-container {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* 핀치 확대/축소 방지 */
+            .memorize-mode {
+                touch-action: none;
+            }
+
         }
     </style>
 </head>
@@ -395,6 +736,7 @@
     </div>
 </header>
 
+<!-- 1. 헤더의 컨트롤 패널에 암기 모드 버튼 추가 -->
 <div class="control-panel">
     <div class="search-filters">
         <input type="text" class="search-bar" placeholder="카드 검색...">
@@ -402,11 +744,26 @@
             <button class="btn btn-filter active" data-filter="all">전체</button>
             <button class="btn btn-filter" data-filter="memorized">암기</button>
             <button class="btn btn-filter" data-filter="not-memorized">미암기</button>
+            <!-- 암기 모드 버튼 추가 -->
+            <button class="btn btn-memorize-mode">암기 모드</button>
         </div>
     </div>
     <div>
         <button class="btn btn-add">카드 추가</button>
         <button class="btn btn-delete">삭제</button>
+    </div>
+</div>
+
+<!-- 2. 암기 모드 컨테이너 추가 -->
+<div id="memorizeMode" class="memorize-mode">
+    <div class="memorize-header">
+        <button class="btn btn-exit-memorize" onclick="closeMemorizeMode()" style="position: relative; z-index: 2001;">나가기</button>
+        <div class="memorize-counter">0/0</div>
+    </div>
+    <div class="memorize-container">
+        <div class="card-carousel">
+            <!-- 카드들이 여기에 동적으로 추가됩니다 -->
+        </div>
     </div>
 </div>
 
@@ -458,10 +815,22 @@
 </div>
 
 <script>
+
     document.addEventListener("DOMContentLoaded", function () {
         const folderId = window.location.pathname.split("/").pop();
         const cardGrid = document.getElementById("cardGrid");
         const addCardBtn = document.getElementById("addCardBtn");
+
+        // 암기 모드 관련 요소들
+        const memorizeMode = document.getElementById("memorizeMode");
+        const cardCarousel = document.querySelector(".card-carousel");
+        const memorizeCounter = document.querySelector(".memorize-counter");
+        let currentCardIndex = 0;
+        let memorizeCards = [];
+
+        // 암기 모드 스타일 명시적 설정 - 초기값 설정
+        memorizeMode.style.display = 'none';
+        memorizeMode.style.zIndex = '2000';
 
         // 카드 로딩
         function loadCards() {
@@ -489,18 +858,18 @@
                 cardEl.setAttribute("data-memorized", card.memorized);
 
                 cardEl.innerHTML = `
-                <input type="checkbox" class="card-checkbox" style="display:none">
-                <div class="card-memorized-btn">
-                    <svg class="card-memorized-icon" viewBox="0 0 24 24">
-                        <path d="M9 16.17l-4.17-4.17-1.42 1.41 5.59 5.59 12-12-1.41-1.41z"/>
-                    </svg>
-                </div>
-                <div class="card-inner">
-                    <div class="card-front">${card.front}</div>
-                    <div class="card-back" style="display:none">${card.back}</div>
-                    <div class="card-hint">클릭하여 정답 보기</div>
-                </div>
-            `;
+            <input type="checkbox" class="card-checkbox" style="display:none">
+            <div class="card-memorized-btn">
+                <svg class="card-memorized-icon" viewBox="0 0 24 24">
+                    <path d="M9 16.17l-4.17-4.17-1.42 1.41 5.59 5.59 12-12-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div class="card-inner">
+                <div class="card-front">${card.front}</div>
+                <div class="card-back" style="display:none">${card.back}</div>
+                <div class="card-hint">클릭하여 정답 보기</div>
+            </div>
+        `;
                 cardGrid.insertBefore(cardEl, addCardBtn);
             });
 
@@ -547,8 +916,8 @@
 
                     fetch(`/api/v1/cards/${cardId}/memorized`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ memorized: newState })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({memorized: newState})
                     });
                 });
             });
@@ -609,7 +978,7 @@
         document.querySelector('.btn-save').addEventListener('click', () => {
             const front = document.getElementById('cardFront').value.trim();
             const back = document.getElementById('cardBack').value.trim();
-            const cardId = document.querySelector('#cardDetailModal').getAttribute('data-id');
+            const cardId = document.getElementById('cardModal').getAttribute('data-id');
 
             if (!front || !back) {
                 alert("앞면과 뒷면 모두 입력해주세요.");
@@ -621,8 +990,8 @@
 
             fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ front, back })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({front, back})
             }).then(response => {
                 if (response.ok) {
                     document.getElementById('cardModal').style.display = 'none';
@@ -653,10 +1022,8 @@
             });
         });
 
-        loadCards();
-
         // 버튼 선택자 수정 - 클래스명을 정확히 지정
-        document.querySelector('.btn-delete').addEventListener('click', function() {
+        document.querySelector('.btn-delete').addEventListener('click', function () {
             const checkboxes = document.querySelectorAll('.card-checkbox');
             const isDeleteMode = checkboxes.length > 0 && getComputedStyle(checkboxes[0]).display === 'block';
 
@@ -688,7 +1055,7 @@
                 if (!confirm("선택한 카드를 삭제하시겠습니까?")) return;
 
                 Promise.all(selectedCards.map(id =>
-                    fetch(`/api/v1/cards/${id}`, { method: 'DELETE' })
+                    fetch(`/api/v1/cards/${id}`, {method: 'DELETE'})
                 )).then(responses => {
                     // 모든 응답이 성공했는지 확인
                     const allSuccessful = responses.every(response => response.ok);
@@ -698,12 +1065,7 @@
                         this.textContent = '삭제';
 
                         // 카드 목록 다시 로드
-                        if (typeof loadCards === 'function') {
-                            loadCards();
-                        } else {
-                            // loadCards 함수가 없으면 페이지 새로고침
-                            location.reload();
-                        }
+                        loadCards();
                     } else {
                         alert("일부 카드 삭제에 실패했습니다.");
                     }
@@ -714,7 +1076,248 @@
             }
         });
 
+        // 암기 모드 버튼 클릭 이벤트
+        document.querySelector('.btn-memorize-mode').addEventListener('click', function () {
+            console.log("암기 모드 시작");
+
+            // 모든 카드(미암기 상태인 카드만)를 수집
+            memorizeCards = Array.from(document.querySelectorAll('.card:not(.memorized):not(.add-card)'))
+                .filter(card => card.getAttribute('data-id')) // data-id가 있는 카드만
+                .map(card => {
+                    return {
+                        id: card.getAttribute('data-id'),
+                        front: card.querySelector('.card-front').textContent,
+                        back: card.querySelector('.card-back').textContent
+                    };
+                });
+
+            if (memorizeCards.length === 0) {
+                alert("암기할 카드가 없습니다.");
+                return;
+            }
+
+            // 카드 섞기
+            shuffleArray(memorizeCards);
+
+            // 카드 캐러셀 초기화
+            cardCarousel.innerHTML = '';
+            currentCardIndex = 0;
+
+            // 각 카드 요소 생성 및 추가
+            memorizeCards.forEach((card, index) => {
+                const cardElement = createMemorizeCard(card, index);
+                cardCarousel.appendChild(cardElement);
+            });
+
+            // 카운터 업데이트
+            updateMemorizeCounter();
+
+            // 암기 모드 표시
+            memorizeMode.style.display = 'flex';
+
+            // 첫 번째 카드로 이동
+            goToCard(0);
+
+            // 디버깅
+            console.log("카드 개수:", memorizeCards.length);
+            console.log("암기 모드 표시 상태:", memorizeMode.style.display);
+        });
+
+        // 암기 모드 나가기 버튼
+        document.querySelector('.btn-exit-memorize').addEventListener('click', function() {
+            console.log("나가기 버튼 클릭됨");  // 디버깅용
+            memorizeMode.style.display = 'none';
+        });
+
+        function closeMemorizeMode() {
+            console.log("나가기 함수 실행");
+            document.getElementById('memorizeMode').style.display = 'none';
+            // 카드 목록 새로고침 (선택사항)
+            loadCards();
+        }
+
+        // 카드 생성 함수
+        function createMemorizeCard(card, index) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'memorize-card';
+            cardDiv.setAttribute('data-index', index);
+            cardDiv.setAttribute('data-id', card.id);
+
+            cardDiv.innerHTML = `
+                    <div class="memorize-card-inner">
+                        <div class="memorize-card-front">
+                            ${card.front}
+                            <div class="memorize-card-hint">클릭하여 뒤집기</div>
+                        </div>
+                        <div class="memorize-card-back">
+                            ${card.back}
+                            <div class="memorize-card-hint">클릭하여 뒤집기</div>
+                        </div>
+                    </div>
+                    <div class="memorize-buttons">
+                        <button class="btn memorize-btn memorize-btn-wrong">틀림</button>
+                        <button class="btn memorize-btn memorize-btn-correct">맞음</button>
+                    </div>
+                `;
+
+            // 카드 뒤집기 이벤트 - 이벤트 대상 명확하게 지정
+            const cardInner = cardDiv.querySelector('.memorize-card-inner');
+            cardInner.addEventListener('click', function (e) {
+                e.stopPropagation();
+                cardDiv.classList.toggle('memorize-card-flipped');
+            });
+
+            // 맞음 버튼 이벤트
+            const correctBtn = cardDiv.querySelector('.memorize-btn-correct');
+            correctBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+
+                // 해당 카드 암기 완료로 표시
+                const cardId = card.id;
+                fetch(`/api/v1/cards/${cardId}/memorized`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({memorized: true})
+                }).then(response => {
+                    if (response.ok) {
+                        console.log(`카드 ${cardId} 암기 완료 처리됨`);
+                    }
+                });
+
+                // 다음 카드로 이동
+                goToNextCard();
+            });
+
+            // 틀림 버튼 이벤트
+            const wrongBtn = cardDiv.querySelector('.memorize-btn-wrong');
+            wrongBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // 다음 카드로 이동
+                goToNextCard();
+            });
+
+            return cardDiv;
+        }
+
+        // 카드 이동 함수
+        function goToCard(index) {
+            if (index < 0) {
+                // 첫 번째 카드보다 이전으로 가려고 할 때
+                return;
+            }
+
+            if (index >= memorizeCards.length) {
+                // 모든 카드를 다 봤을 경우
+                alert("모든 카드를 확인했습니다!");
+                memorizeMode.style.display = 'none';
+                // 카드 목록 다시 로드
+                loadCards();
+                return;
+            }
+
+            currentCardIndex = index;
+            updateMemorizeCounter();
+
+            // 카드 캐러셀 이동
+            cardCarousel.style.transform = `translateX(-${index * 100}%)`;
+
+            // 현재 카드 플립 상태 초기화
+            const cards = document.querySelectorAll('.memorize-card');
+            cards.forEach(card => card.classList.remove('memorize-card-flipped'));
+        }
+
+        // 다음 카드로 이동
+        function goToNextCard() {
+            goToCard(currentCardIndex + 1);
+        }
+
+        // 이전 카드로 이동
+        function goToPrevCard() {
+            goToCard(currentCardIndex - 1);
+        }
+
+        // 카운터 업데이트
+        function updateMemorizeCounter() {
+            memorizeCounter.textContent = `${currentCardIndex + 1}/${memorizeCards.length}`;
+        }
+
+        // 배열 섞기 함수
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 기존 터치 이벤트 코드 대체
+        function setupSwipeEvents() {
+            const container = document.querySelector('.memorize-container');
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            container.addEventListener('touchstart', function (e) {
+                if (memorizeMode.style.display === 'block') { // 'flex'에서 'block'으로 변경
+                    touchStartX = e.changedTouches[0].screenX;
+                }
+            });
+
+            container.addEventListener('touchend', function (e) {
+                if (memorizeMode.style.display === 'block') { // 'flex'에서 'block'으로 변경
+                    touchEndX = e.changedTouches[0].screenX;
+
+                    const minSwipeDistance = 50;
+                    const swipeDistance = touchEndX - touchStartX;
+
+                    if (swipeDistance > minSwipeDistance) {
+                        // 오른쪽으로 스와이프 (이전 카드)
+                        goToPrevCard();
+                    } else if (swipeDistance < -minSwipeDistance) {
+                        // 왼쪽으로 스와이프 (다음 카드)
+                        goToNextCard();
+                    }
+                }
+            });
+        }
+
+        // 모바일에서 화면 밖 터치시 암기 모드 나가기
+        document.addEventListener('click', function (e) {
+            if (memorizeMode.style.display === 'block') {
+                const isClickInsideCard = e.target.closest('.memorize-card') ||
+                    e.target.closest('.memorize-buttons') ||
+                    e.target.closest('.memorize-header');
+
+                if (!isClickInsideCard) {
+                    memorizeMode.style.display = 'none';
+                }
+            }
+        });
+
+// 키보드 이벤트 처리 (좌/우 화살표키)
+        document.addEventListener('keydown', function (e) {
+            if (memorizeMode.style.display === 'block') {
+                if (e.key === 'ArrowLeft') {
+                    goToPrevCard();
+                } else if (e.key === 'ArrowRight') {
+                    goToNextCard();
+                } else if (e.key === 'Escape') {
+                    memorizeMode.style.display = 'none';
+                } else if (e.key === ' ') {
+                    // 스페이스바로 카드 뒤집기
+                    const currentCard = document.querySelector(`.memorize-card[data-index="${currentCardIndex}"]`);
+                    if (currentCard) {
+                        currentCard.classList.toggle('memorize-card-flipped');
+                    }
+                }
+            }
+        });
+
+        // 페이지 로드 시 카드 로딩
+        loadCards();
+
+        setupSwipeEvents();
     });
+
 </script>
 
 </body>
