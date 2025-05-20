@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/folders")
-public class FolderController {
+public class FolderController implements FolderApi {
 
     private final FolderService folderService;
 
