@@ -30,8 +30,33 @@
 
 ------------
 ### 💻 화면 실행 예시
+<details>
+  <summary>사용자</summary>
+   
+   ![meca_user](https://github.com/user-attachments/assets/1061b559-79b7-44a3-a6e6-b0d644b2cb4a)
 
+</details>
 
+<details>
+  <summary>폴더</summary>
+   
+   ![meca_folder](https://github.com/user-attachments/assets/9117dcb7-9cc2-4d41-83fe-c42e706afdcc)
+
+</details>
+
+<details>
+  <summary>카드</summary>
+   
+   ![meca_card](https://github.com/user-attachments/assets/75ba2643-2569-4f56-a324-7f2a818ea89c)
+
+</details>
+
+<details>
+  <summary>카드 암기</summary>
+   
+   ![meca_card_memorize](https://github.com/user-attachments/assets/8cfe2624-ee50-47ba-9f7e-225156e28029)
+
+</details>
 
 
 ------------
@@ -51,8 +76,7 @@
 ------------
 ### 📃 ERD 테이블
 
-(추가 예정)
-<p align="center"><img src="" width="800"/></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/2a94a942-da39-4d6f-a4ab-dc997cd1c987" width="800"/></p>
 <br>
 
 ### 📜 API 명세서
